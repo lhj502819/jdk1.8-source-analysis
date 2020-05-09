@@ -98,6 +98,7 @@ public abstract class AbstractExecutorService implements ExecutorService {
      * cancellation of the underlying task
      * @since 1.6
      */
+    //
     protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
         return new FutureTask<T>(callable);
     }

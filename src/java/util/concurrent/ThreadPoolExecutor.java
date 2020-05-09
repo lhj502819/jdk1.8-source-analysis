@@ -942,6 +942,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         retry:
         for (; ; ) {
             int c = ctl.get();
+            //获取当前线程状态
             int rs = runStateOf(c);
 
             // Check if queue empty only if necessary.
@@ -950,17 +951,24 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
                             firstTask == null &&
                             !workQueue.isEmpty()))
                 return false;
-
+            //内循环，worker+1
             for (; ; ) {
+                //当前线程数量
                 int wc = workerCountOf(c);
+                //如果当前线程数大于线程最大上限CAPACITY返回false
+                //如果core=true则当前线程数与核心线程数对比，如果core=false，则于最大线程数比，如果大于则返回false。
                 if (wc >= CAPACITY ||
                         wc >= (core ? corePoolSize : maximumPoolSize))
                     return false;
+                //通过CAS+1 worker，成功则跳出循环
                 if (compareAndIncrementWorkerCount(c))
                     break retry;
+                //添加失败，再次读取ctl
                 c = ctl.get();  // Re-read ctl
+                //如果状态于之前获取的不相等，则跳出内循环，继续去外层循环判断
                 if (runStateOf(c) != rs)
                     continue retry;
+                //否则CAS由于workerCount更改而失败；重试内部循环
                 // else CAS failed due to workerCount change; retry inner loop
             }
         }
@@ -969,9 +977,12 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         boolean workerAdded = false;
         Worker w = null;
         try {
+            //新建一个线程：Worker
             w = new Worker(firstTask);
+            //获得当前线程
             final Thread t = w.thread;
             if (t != null) {
+                //获取主锁并加锁
                 final ReentrantLock mainLock = this.mainLock;
                 mainLock.lock();
                 try {
@@ -979,26 +990,33 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
                     // Back out on ThreadFactory failure or if
                     // shut down before lock acquired.
                     int rs = runStateOf(ctl.get());
-
+                    //再次检查线程池的状态是否处于RUNNING
+                    //或者线程池处于SHUTDOWN状态，且firstTask是null，
                     if (rs < SHUTDOWN ||
                             (rs == SHUTDOWN && firstTask == null)) {
                         if (t.isAlive()) // precheck that t is startable
+                            //如果当前线程已启动，则抛出异常
                             throw new IllegalThreadStateException();
+                        //添加worker到集合中
                         workers.add(w);
                         int s = workers.size();
+                        //设置最大池的大小
                         if (s > largestPoolSize)
                             largestPoolSize = s;
                         workerAdded = true;
                     }
                 } finally {
+                    //释放主锁
                     mainLock.unlock();
                 }
                 if (workerAdded) {
+                    //如果woker添加成功，启动线程
                     t.start();
                     workerStarted = true;
                 }
             }
         } finally {
+            //线程启动失败
             if (!workerStarted)
                 addWorkerFailed(w);
         }
@@ -1362,7 +1380,8 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     // 当队列和线程池都吗满了说明线程池处于饱和状态。纳秒必须采取一种策略处理提交的新任务。
     // 这个策略默认是AbortPolicy，表示无法处理新任务时抛出异常。
     //  其它策略：
-    //          CallerRunsPolicy：只用调用者所在线程来运行任务  DiscardOldestPolicy：丢弃队列里最近的一个任务，并执行当前任务
+    //          CallerRunsPolicy：只用调用者所在线程来运行任务
+    //          DiscardOldestPolicy：丢弃队列里最近的一个任务，并执行当前任务
     //          DiscardPolicy：不处理，丢弃掉
     public ThreadPoolExecutor(int corePoolSize,
                               int maximumPoolSize,

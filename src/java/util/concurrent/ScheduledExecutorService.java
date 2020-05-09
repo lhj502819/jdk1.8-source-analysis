@@ -91,6 +91,7 @@ package java.util.concurrent;
  * @since 1.5
  * @author Doug Lea
  */
+//继承ExecutorService，为一个“延迟”和“定期执行”的ExecutorService。它提供了schedule 、scheduleAtFixedRate、scheduleWithFixedDelay几个方法安排任务在给定的延时执行或者周期性执行
 public interface ScheduledExecutorService extends ExecutorService {
 
     /**
@@ -123,6 +124,7 @@ public interface ScheduledExecutorService extends ExecutorService {
      *         scheduled for execution
      * @throws NullPointerException if callable is null
      */
+    //创建并执行在给定延迟后启用的ScheduledFuture
     public <V> ScheduledFuture<V> schedule(Callable<V> callable,
                                            long delay, TimeUnit unit);
 
@@ -151,6 +153,8 @@ public interface ScheduledExecutorService extends ExecutorService {
      * @throws NullPointerException if command is null
      * @throws IllegalArgumentException if period less than or equal to zero
      */
+    //创建并执行一个在给定延迟之后执行的定期任务
+    //在initialDelay延迟之后，每隔period执行一次
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
                                                   long initialDelay,
                                                   long period,
@@ -178,6 +182,7 @@ public interface ScheduledExecutorService extends ExecutorService {
      * @throws NullPointerException if command is null
      * @throws IllegalArgumentException if delay less than or equal to zero
      */
+    //创建并执行一个在给定延迟之后首次启动的定期操作，随后在每一次执行终止和下一次执行开始之间都存在给定的延迟
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
                                                      long initialDelay,
                                                      long delay,

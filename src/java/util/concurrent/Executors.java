@@ -68,6 +68,12 @@ import sun.security.util.SecurityConstants;
  * @since 1.5
  * @author Doug Lea
  */
+//静态工厂类，提供了Executor、ExecutorService、ScheduledExecutorService、ThreadFactory、Callable等类的静态工厂方法，通过这些静态工厂方法可以得到相应的对象
+//1、创建并返回设置有常用配置字符串的ExecutorService方法
+//2、创建并返回带有常用配置字符串的ScheduledExecutorService方法
+//3、创建并返回“包装的”ExecutorService方法，它可以通过使特定于实现的方法不可访问来禁用重新配置
+//4、创建并返回ThreadFactory方法，它可以将新创建的线程设置为已知的状态
+//5、创建并返回非闭包形式的Callable的方法，这样可以将其用于需要Callable的执行方法中
 public class Executors {
 
     /**
@@ -85,7 +91,11 @@ public class Executors {
      * @return the newly created thread pool
      * @throws IllegalArgumentException if {@code nThreads <= 0}
      */
+    //可重用固定线程数的线程池
     public static ExecutorService newFixedThreadPool(int nThreads) {
+        //核心线程数和做大线程数设置为一样的，等待队列是没意义的，当线程池满的时候，再来任务会直接走拒绝策略，默认为AbortPolicy--抛出异常
+        //keepAliveTime设置为0，表示空闲的线程会立即停止
+        //
         return new ThreadPoolExecutor(nThreads, nThreads,
                                       0L, TimeUnit.MILLISECONDS,
                                       new LinkedBlockingQueue<Runnable>());
@@ -613,8 +623,10 @@ public class Executors {
                                   namePrefix + threadNumber.getAndIncrement(),
                                   0);
             if (t.isDaemon())
+                //非守护线程
                 t.setDaemon(false);
             if (t.getPriority() != Thread.NORM_PRIORITY)
+                //优先级都为5
                 t.setPriority(Thread.NORM_PRIORITY);
             return t;
         }

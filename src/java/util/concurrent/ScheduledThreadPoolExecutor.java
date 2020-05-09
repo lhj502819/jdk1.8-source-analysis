@@ -118,6 +118,7 @@ import java.util.*;
  * @since 1.5
  * @author Doug Lea
  */
+//继承了ThreadPoolExecutor并且实现了ScheduledExecutorService接口，是两者的集大成者，相当于提供了延迟和周期执行功能的ThreadPoolExecutor。
 public class ScheduledThreadPoolExecutor
         extends ThreadPoolExecutor
         implements ScheduledExecutorService {
