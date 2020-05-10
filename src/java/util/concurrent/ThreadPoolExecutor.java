@@ -1377,7 +1377,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     //threadFactor：用于设置创建线程的工厂。该对象可以通过Executors.defaulThreadFactory()
 
     //handler，线程池的拒绝策略。所谓拒绝策略，是指将任务添加到线程池中时，线程池拒绝该任务所采用的相应策略。
-    // 当队列和线程池都吗满了说明线程池处于饱和状态。纳秒必须采取一种策略处理提交的新任务。
+    // 当队列和线程池都满了说明线程池处于饱和状态。纳秒必须采取一种策略处理提交的新任务。
     // 这个策略默认是AbortPolicy，表示无法处理新任务时抛出异常。
     //  其它策略：
     //          CallerRunsPolicy：只用调用者所在线程来运行任务

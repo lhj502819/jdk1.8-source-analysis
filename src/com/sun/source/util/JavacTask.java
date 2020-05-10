@@ -42,7 +42,7 @@ import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.util.Context;
 
 /**
- * Provides access to functionality specific to the JDK Java Compiler, javac.
+ * Provides access to functionality specific to the JDK Java Compiler,  javac.
  *
  * @author Peter von der Ah&eacute;
  * @author Jonathan Gibbons

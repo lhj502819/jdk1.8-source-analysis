@@ -91,11 +91,11 @@ public class Executors {
      * @return the newly created thread pool
      * @throws IllegalArgumentException if {@code nThreads <= 0}
      */
+    //适用于为了满足资源管理的需求，而需要限制当前线程数量的应用场景，适用于负载比较重的场景
     //可重用固定线程数的线程池
     public static ExecutorService newFixedThreadPool(int nThreads) {
         //核心线程数和做大线程数设置为一样的，等待队列是没意义的，当线程池满的时候，再来任务会直接走拒绝策略，默认为AbortPolicy--抛出异常
         //keepAliveTime设置为0，表示空闲的线程会立即停止
-        //
         return new ThreadPoolExecutor(nThreads, nThreads,
                                       0L, TimeUnit.MILLISECONDS,
                                       new LinkedBlockingQueue<Runnable>());
@@ -198,6 +198,8 @@ public class Executors {
      * @return the newly created single-threaded Executor
      * @throws NullPointerException if threadFactory is null
      */
+    //创建使用单个线程的SingleThreadExecutor
+    //适用于需要保证顺序执行各个任务，并且在任意时间点不会出现并发的场景
     public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactory) {
         return new FinalizableDelegatedExecutorService
             (new ThreadPoolExecutor(1, 1,
@@ -222,6 +224,7 @@ public class Executors {
      *
      * @return the newly created thread pool
      */
+    //大小无界的线程池，适用于执行很多的短期异步任务的小程序，或者是负载较的服务器
     public static ExecutorService newCachedThreadPool() {
         return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                                       60L, TimeUnit.SECONDS,
@@ -257,6 +260,8 @@ public class Executors {
      * guaranteed not to be reconfigurable to use additional threads.
      * @return the newly created scheduled executor
      */
+    //单个线程的ScheduledThreadPoolExecutor
+    //适用于需要单个后台线程执行周期任务，同时需要保证顺序的执行各个任务的应用场景
     public static ScheduledExecutorService newSingleThreadScheduledExecutor() {
         return new DelegatedScheduledExecutorService
             (new ScheduledThreadPoolExecutor(1));
@@ -291,6 +296,8 @@ public class Executors {
      * @return a newly created scheduled thread pool
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      */
+    //包含若干个线程的ScheduledThreadPoolExecutor
+    //适用于需要多个后台线程执行周期任务，同时为了满足资源管理的需求而需要线程后台线程的数量的应用场景。
     public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
         return new ScheduledThreadPoolExecutor(corePoolSize);
     }
