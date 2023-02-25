@@ -153,12 +153,15 @@ public class CyclicBarrier {
     }
 
     /** The lock for guarding barrier entry */
+    // 内部使用非公平锁
     private final ReentrantLock lock = new ReentrantLock();
     /** Condition to wait on until tripped */
     private final Condition trip = lock.newCondition();
     /** The number of parties */
+    //记录初始值，用于还原CyclicBarrier
     private final int parties;
     /* The command to run when tripped */
+    //回调函数
     private final Runnable barrierCommand;
     /** The current generation */
     private Generation generation = new Generation();
@@ -168,6 +171,7 @@ public class CyclicBarrier {
      * on each generation.  It is reset to parties on each new
      * generation or when broken.
      */
+    //计数，初始值与parties相等，会根据线程执行await()-1
     private int count;
 
     /**
@@ -176,6 +180,7 @@ public class CyclicBarrier {
      */
     private void nextGeneration() {
         // signal completion of last generation
+        //此处调用Condition的signalAll会将所有条件队列中的线程加入到AQS的同步队列中，并唤醒所有的线程争抢锁
         trip.signalAll();
         // set up next generation
         count = parties;
@@ -202,17 +207,20 @@ public class CyclicBarrier {
         lock.lock();
         try {
             final Generation g = generation;
-
+            //判断当前CyclicBarrier是否已经被破坏
             if (g.broken)
                 throw new BrokenBarrierException();
-
             if (Thread.interrupted()) {
+                //如果当前线程被中断，则破坏Barrier并唤醒所有阻塞的线程
                 breakBarrier();
                 throw new InterruptedException();
             }
 
+            //计数减一
             int index = --count;
             if (index == 0) {  // tripped
+                //如果减一后计数为0了，如果设置了回调函数则执行回调函数
+                // 重置CyclicBarrier，唤醒所有阻塞的线程，设置count为初始值parites
                 boolean ranAction = false;
                 try {
                     final Runnable command = barrierCommand;
@@ -223,6 +231,7 @@ public class CyclicBarrier {
                     return 0;
                 } finally {
                     if (!ranAction)
+                        //失败则破坏Barrier
                         breakBarrier();
                 }
             }
@@ -231,6 +240,7 @@ public class CyclicBarrier {
             for (;;) {
                 try {
                     if (!timed)
+                        //将当前线程加入到Condition条件队列中
                         trip.await();
                     else if (nanos > 0L)
                         nanos = trip.awaitNanos(nanos);

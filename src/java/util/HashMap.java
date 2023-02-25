@@ -279,7 +279,7 @@ public class HashMap<K, V> extends AbstractMap<K, V>
      * between resizing and treeification thresholds.
      * <p>
      * 链表转换为红黑树的另一个条件，当整个HashMap的元素个数达到64之后，才允许链表树化
-     * 加上上边的条件：单个链表的个数大于8，并且整个HashMap的元素个数大于64 则该连边允许转化为红黑树
+     * 加上上边的条件：单个链表的个数大于8，并且整个HashMap的元素个数大于64 则该链表允许转化为红黑树
      */
     static final int MIN_TREEIFY_CAPACITY = 64;
 

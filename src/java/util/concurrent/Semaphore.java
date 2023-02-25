@@ -178,6 +178,8 @@ public class Semaphore implements java.io.Serializable {
             for (;;) {
                 int available = getState();
                 int remaining = available - acquires;
+                //当remaining >=0 时表示获取成功
+                //当remaining < 0 表示获取失败
                 if (remaining < 0 ||
                     compareAndSetState(available, remaining))
                     return remaining;
@@ -242,8 +244,10 @@ public class Semaphore implements java.io.Serializable {
 
         protected int tryAcquireShared(int acquires) {
             for (;;) {
+                //当等待队列中有等待的线程时返回获取失败
                 if (hasQueuedPredecessors())
                     return -1;
+                //其他与非公平的一样
                 int available = getState();
                 int remaining = available - acquires;
                 if (remaining < 0 ||

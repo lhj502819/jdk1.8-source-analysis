@@ -267,6 +267,8 @@ public class ReentrantReadWriteLock
         static final int SHARED_SHIFT   = 16;
         static final int SHARED_UNIT    = (1 << SHARED_SHIFT);
         static final int MAX_COUNT      = (1 << SHARED_SHIFT) - 1;
+
+        //11111111111111110000000000000001
         static final int EXCLUSIVE_MASK = (1 << SHARED_SHIFT) - 1;
 
         /** Returns the number of shared holds represented in count  */
@@ -464,6 +466,11 @@ public class ReentrantReadWriteLock
 
         protected final int tryAcquireShared(int unused) {
             /*
+
+            1。如果另一个线程持有写锁，则失败。
+            2.否则，该线程符合锁wrt状态，因此询问它是否应该由于队列策略而阻塞。如果没有，请尝试通过CASing状态和更新计数授予。
+                请注意，该步骤不检查可重入获取，这将被推迟到完整版本，以避免在更典型的不可重入情况下检查保留计数。
+            3.如果步骤2失败，或者是因为线程明显不合格，或者是CAS失败，或者计数饱和，则使用完整的重试循环链接到版本。
              * Walkthrough:
              * 1. If write lock held by another thread, fail.
              * 2. Otherwise, this thread is eligible for
